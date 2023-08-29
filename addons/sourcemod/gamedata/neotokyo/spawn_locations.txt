@@ -1,0 +1,24 @@
+"Games"
+{
+	"NeotokyoSource"
+	{
+		"Signatures"
+		{
+			"Sig_PlacePlayerInWorld"
+			{
+				"library"	"server"
+				"windows"	"\x56\x8B\xF1\x8B\x06\x8B\x90\xBC\x04\x00\x00\x57\xFF\xD2\x8B\x06"
+			}
+		}
+		"Functions"
+		{
+			"Fn_PlacePlayerInWorld"
+			{
+				"signature"	"Sig_PlacePlayerInWorld"
+				"callconv"	"thiscall"
+				"return"	"void"
+				"this"		"entity"
+			}
+		}
+	}
+}
