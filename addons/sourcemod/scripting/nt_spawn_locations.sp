@@ -70,6 +70,12 @@ public Action Cmd_NewSpawn(int client, int argc)
 		return Plugin_Handled;
 	}
 
+	if (IsPlayerDeadOrPlayingDead(client))
+	{
+		PrintToChat(client, "%s This command may only be used by alive players", _tag);
+		return Plugin_Handled;
+	}
+
 	float respawn_delay = 5.0;
 	int userid = GetClientUserId(client);
 	_timer_rerespawn[client] = CreateTimer(respawn_delay, Timer_ReRespawn, userid);
@@ -78,6 +84,12 @@ public Action Cmd_NewSpawn(int client, int argc)
 	ServerCommand("sm_beacon #%d", userid);
 
 	return Plugin_Handled;
+}
+
+bool IsPlayerDeadOrPlayingDead(int client)
+{
+	// Check both for catching spectators and the custom nt_respawn'ers
+	return !IsPlayerAlive(client) || GetClientHealth(client) == 0;
 }
 
 public Action Timer_ReRespawn(Handle timer, int userid)
@@ -90,6 +102,11 @@ public Action Timer_ReRespawn(Handle timer, int userid)
 		return Plugin_Stop;
 	}
 	_timer_rerespawn[client] = INVALID_HANDLE;
+
+	if (IsPlayerDeadOrPlayingDead(client))
+	{
+		return Plugin_Stop;
+	}
 
 	if (!TeleportToRandomGoodLocation(client))
 	{
