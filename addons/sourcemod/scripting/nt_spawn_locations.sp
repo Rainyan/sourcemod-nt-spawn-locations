@@ -20,7 +20,7 @@ public Plugin myinfo = {
 	description = "Spawn players in custom locations in the maps",
 	author = "Rain",
 	version = PLUGIN_VERSION,
-	url = ""
+	url = "https://github.com/Rainyan/sourcemod-nt-spawn-locations"
 };
 
 public void OnPluginStart()
