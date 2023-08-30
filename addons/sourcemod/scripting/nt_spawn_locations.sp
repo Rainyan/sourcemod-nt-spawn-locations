@@ -7,7 +7,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "0.1.1"
+#define PLUGIN_VERSION "0.1.2"
 
 #define MAX_RESPAWN_TRIES 0xFFFFFF
 
@@ -184,7 +184,7 @@ bool GetSpawnLocation(int client, float pos[3], float ang[3], float vel[3])
 	GetClientMins(client, client_mins);
 	GetClientMaxs(client, client_maxs);
 
-	char classname[32];
+	char classname[12 + 1];
 	float hurt_pos[3];
 	float hurt_mins[3];
 	float hurt_maxs[3];
