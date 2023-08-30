@@ -228,7 +228,7 @@ bool GetSpawnLocation(int client, float pos[3], float ang[3], float vel[3])
 			}
 
 			// this is a healing trigger
-			if (GetEntPropFloat(edict, Prop_Data, "m_flDamage") < 0)
+			if (GetEntPropFloat(edict, Prop_Data, "m_flDamage") <= 0)
 			{
 				continue;
 			}
