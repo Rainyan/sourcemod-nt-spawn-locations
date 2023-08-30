@@ -9,6 +9,8 @@
 
 #define PLUGIN_VERSION "0.1.0"
 
+#define MAX_RESPAWN_TRIES 0xFFFFFF
+
 char _tag[] = "[SPAWN]";
 
 ConVar _cvar_new_spawn_allowed;
@@ -142,11 +144,10 @@ bool GetRandomPosWhereFits(const float mins[3], const float maxs[3], int mask, f
 		return false;
 	}
 
-	int num_tries = 0, max_tries = 100;
+	int num_tries = 0;
 	do {
-		if (++num_tries > max_tries)
+		if (++num_tries > MAX_RESPAWN_TRIES)
 		{
-			//PrintToServer("Gave up after %d tries", num_tries);
 			return false;
 		}
 		out_pos[0] = GetURandomFloat_Range(world_mins[0], world_maxs[0]);
@@ -162,9 +163,10 @@ bool SettleZWhereFits(const float mins[3], const float maxs[3], int mask, float 
 {
 	float down[3] = { 90.0, 0.0, 0.0 };
 	TR_TraceRay(mut_pos, down, mask, RayType_Infinite);
-	if (!TR_DidHit())
+	// If we spawned on SURF_NODRAW, we're probably standing under or above
+	// the playable world.
+	if (!TR_DidHit() || (TR_GetSurfaceFlags() & SURF_NODRAW))
 	{
-		//PrintToServer("No hit 1: %f %f %f -> down", mut_pos[0], mut_pos[1], mut_pos[2]);
 		return false;
 	}
 	float end_pos[3];
@@ -182,10 +184,70 @@ bool GetSpawnLocation(int client, float pos[3], float ang[3], float vel[3])
 	GetClientMins(client, client_mins);
 	GetClientMaxs(client, client_maxs);
 
-	if (!GetRandomPosWhereFits(client_mins, client_maxs, MASK_PLAYERSOLID, pos))
+	char classname[32];
+	float hurt_pos[3];
+	float hurt_mins[3];
+	float hurt_maxs[3];
+	bool got_valid_spawn = true;
+	int n_tries;
+	do
 	{
-		return false;
-	}
+		if (++n_tries > MAX_RESPAWN_TRIES)
+		{
+			return false;
+		}
+
+		got_valid_spawn = GetRandomPosWhereFits(
+			client_mins,
+			client_maxs,
+			MASK_PLAYERSOLID,
+			pos
+		);
+
+		if (!got_valid_spawn)
+		{
+			return false;
+		}
+
+		for (int edict = MaxClients + 1; edict < GetMaxEntities(); ++edict)
+		{
+			if (!IsValidEdict(edict) ||
+				!GetEdictClassname(edict, classname, sizeof(classname)))
+			{
+				continue;
+			}
+
+			if (!StrEqual(classname, "trigger_hurt"))
+			{
+				continue;
+			}
+
+			if (GetEntProp(edict, Prop_Data, "m_bDisabled"))
+			{
+				continue;
+			}
+
+			// this is a healing trigger
+			if (GetEntPropFloat(edict, Prop_Data, "m_flDamage") < 0)
+			{
+				continue;
+			}
+
+			GetEntPropVector(edict, Prop_Data, "m_vecAbsOrigin", hurt_pos);
+			GetEntPropVector(edict, Prop_Data, "m_vecMins", hurt_mins);
+			GetEntPropVector(edict, Prop_Data, "m_vecMaxs", hurt_maxs);
+			/* 	example:
+				hurt m_vecAbsOrigin: -1472.000000 96.000000 -3048.000000
+				hurt m_vecMins: -513.000000 -929.000000 -25.000000
+				hurt m_vecMaxs: 513.000000 929.000000 25.000000
+			*/
+			if (PointInBBox(pos, hurt_pos, hurt_mins, hurt_maxs))
+			{
+				got_valid_spawn = false;
+				break;
+			}
+		}
+	} while (!got_valid_spawn);
 
 	ang[0] = 0.0;
 	ang[1] = GetURandomFloat_Range(0.0, 360.0);  // yaw
@@ -195,7 +257,17 @@ bool GetSpawnLocation(int client, float pos[3], float ang[3], float vel[3])
 	vel[1] = 0.0;
 	vel[2] = 0.0;
 
-	return true;
+	return got_valid_spawn;
+}
+
+stock bool PointInBBox(const float point[3], const float origin[3],
+	const float mins[3], const float maxs[3])
+{
+	return (
+		point[0] >= origin[0] + mins[0] && point[0] <= origin[0] + maxs[0] &&
+		point[1] >= origin[1] + mins[1] && point[1] <= origin[1] + maxs[1] &&
+		point[2] >= origin[2] + mins[2] && point[2] <= origin[2] + maxs[2]
+	);
 }
 
 bool TeleportToRandomGoodLocation(int client)
