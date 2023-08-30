@@ -155,7 +155,7 @@ bool GetRandomPosWhereFits(const float mins[3], const float maxs[3], int mask, f
 		TR_TraceHull(out_pos, out_pos, mins, maxs, mask);
 	} while (TR_StartSolid());
 
-	return false || SettleZWhereFits(mins, maxs, mask, out_pos);
+	return SettleZWhereFits(mins, maxs, mask, out_pos);
 }
 
 bool SettleZWhereFits(const float mins[3], const float maxs[3], int mask, float mut_pos[3])
@@ -188,7 +188,7 @@ bool GetSpawnLocation(int client, float pos[3], float ang[3], float vel[3])
 	}
 
 	ang[0] = 0.0;
-	ang[1] = GetURandomFloat_Range(0.0, 360.0);
+	ang[1] = GetURandomFloat_Range(0.0, 360.0);  // yaw
 	ang[2] = 0.0;
 
 	vel[0] = 0.0;
