@@ -12,10 +12,15 @@ This plugin is intended to accompany the [NT Respawns plugin](https://github.com
 * Move the compiled .smx binary to `addons/sourcemod/plugins`
 * Move the gamedata file to `addons/sourcemod/gamedata/neotokyo` (create the *"neotokyo"* folder in gamedata if it doesn't exist yet)
 
-
 ## Configuration
 
 #### Cvars
+* sm_nt_allow_new_random_spawn
+  * Default value: `1`
+  * Description: `Whether to allow players to change their custom spawn location.  This is useful if the player spawns in a bad location, such as outside playable area.`
+  * Min: `float(false)`
+  * Max: `float(true)`
+
 
 * *sm_nt_allow_new_random_spawn*
   * Whether to allow players to change their custom spawn location. This is useful if the player spawns in a bad location, such as outside playable area.
