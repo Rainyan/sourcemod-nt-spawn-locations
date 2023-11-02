@@ -22,9 +22,5 @@ This plugin is intended to accompany the [NT Respawns plugin](https://github.com
   * Max: `float(true)`
 
 
-* *sm_nt_allow_new_random_spawn*
-  * Whether to allow players to change their custom spawn location. This is useful if the player spawns in a bad location, such as outside playable area.
-  * default: `1`, min: `0`, max: `1`
-
 ## Usage
 Spawn point is chosen automatically upon (re)spawn. If allowed by `sm_nt_allow_new_random_spawn`, players may opt to change their spawn location with the `sm_spawn` command (`!spawn` in chat). The command has a delay, and incurs a beacon upon the caller, as simple means of avoiding abuse of the teleportation for gameplay advantage.
